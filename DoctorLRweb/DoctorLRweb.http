@@ -1,0 +1,6 @@
+@DoctorLRweb_HostAddress = http://localhost:5161
+
+GET {{DoctorLRweb_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
