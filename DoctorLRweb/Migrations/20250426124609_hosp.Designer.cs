@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace DoctorLRweb.Migrations
 {
     [DbContext(typeof(Context))]
-    [Migration("20250417101853_hosp")]
+    [Migration("20250426124609_hosp")]
     partial class hosp
     {
         /// <inheritdoc />
@@ -161,9 +161,6 @@ namespace DoctorLRweb.Migrations
 
                     b.Property<long>("Phone")
                         .HasColumnType("bigint");
-
-                    b.Property<string>("PhotoUrl")
-                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Role")
                         .IsRequired()

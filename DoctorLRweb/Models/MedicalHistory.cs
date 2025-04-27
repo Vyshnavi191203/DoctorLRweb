@@ -20,6 +20,10 @@ namespace DoctorLRweb.Models
         public int PatientId { get; set; }
 
         [Required]
+        public string DoctorNames { get; set; }
+
+
+        [Required]
         [MaxLength(500)]
         public string Diagnosis { get; set; }
 

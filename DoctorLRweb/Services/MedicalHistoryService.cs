@@ -12,10 +12,10 @@ namespace DoctorLRweb.Services
         }
         public IEnumerable<MedicalHistory> GetAll() => _repository.GetAll();
         public MedicalHistory GetById(int id) => _repository.GetById(id);
-        public void AddMedicalHistory(MedicalHistory medicalHistory, int userId)
-            => _repository.AddMedicalHistory(medicalHistory, userId);
-        public void UpdateMedicalHistory(int id, MedicalHistory medicalHistory)
-            => _repository.UpdateMedicalHistory(id,medicalHistory);
+        public void AddMedicalHistory(MedicalHistory medicalHistory, int userId, string doctorName)
+            => _repository.AddMedicalHistory(medicalHistory, userId,doctorName);
+        public void UpdateMedicalHistory(int id, MedicalHistory updatedHistory, string doctorName)
+            => _repository.UpdateMedicalHistory(id,updatedHistory,doctorName);
         public void DeleteMedicalHistory(int id)
             => _repository.DeleteMedicalHistory(id);
         public int? GetPatientIdFromUser(int userId)
@@ -34,6 +34,13 @@ namespace DoctorLRweb.Services
         {
             return _repository.GetPagedMedicalHistories(pageNumber, pageSize, out totalRecords);
         }
-
+        public IEnumerable<MedicalHistory> SearchByPatientName(string patientName)
+        {
+            return _repository.SearchByPatientName(patientName);
+        }
+        public IEnumerable<MedicalHistory> SearchByDoctorName(string doctorName)
+        {
+            return _repository.SearchByDoctorName(doctorName);
+        }
     }
 }

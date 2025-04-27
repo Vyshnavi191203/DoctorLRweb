@@ -91,9 +91,7 @@ namespace DoctorLRweb.Controllers
         [HttpPost]
         public async Task<ActionResult<User>> PostUser(User user)
         {
-            _context.Users.Add(user);
-            await _context.SaveChangesAsync();
-
+            await _userService.CreateUser(user); // This handles auto-generating 4-digit UserId
             return CreatedAtAction("GetUser", new { id = user.UserId }, user);
         }
 
@@ -125,6 +123,7 @@ namespace DoctorLRweb.Controllers
                 u.Email == identifier || u.UserId.ToString() == identifier);
             if (user == null)
                 return NotFound();
+            user.Password = null;
             return Ok(user);
         }
         [HttpGet("by-role")]

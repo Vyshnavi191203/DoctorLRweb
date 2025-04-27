@@ -17,7 +17,7 @@ namespace DoctorLRweb.Models
 
 
         public int PatientId { get; set; }
-
+        
         [Required]
         public int DoctorID { get; set; }
 

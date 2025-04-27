@@ -93,17 +93,22 @@ namespace DoctorLRweb.Repositories
             _context.SaveChanges();
             return true;
         }
-        public List<string> GetAvailableDepartments()
+        public List<string> GetAllDepartments()
         {
             return _context.DoctorSchedules
                 .Select(ds => ds.Department)
                 .Distinct()
                 .ToList();
         }
-        public List<User> GetDoctorsByDepartment(string department)
+        public List<User> GetAllDoctorsByDepartment(string department)
         {
+            var doctorIds = _context.DoctorSchedules
+                .Where(ds => ds.Department == department)
+                .Select(ds => ds.DoctorId)
+                .Distinct()
+                .ToList();
             return _context.Users
-                .Where(u => u.Role == "doctor" && _context.DoctorSchedules.Any(ds => ds.DoctorId == u.UserId && ds.Department == department))
+                .Where(u => u.Role == "doctor" && doctorIds.Contains(u.UserId))
                 .ToList();
         }
         // ✅ Updated: Get available doctors with their names and time slots
@@ -132,11 +137,26 @@ namespace DoctorLRweb.Repositories
             return result;
         }
 
-        public List<Appointment> GetAppointmentsByDoctorId(int doctorId)
+        public async Task<IEnumerable<object>> GetAppointmentsByDoctorId(int doctorId)
         {
-            return _context.Appointments
-                .Where(a => a.DoctorID == doctorId)
-                .ToList();
+            var appointments = await _context.Appointments
+                .Where(a => a.DoctorID == doctorId && a.AppointmentDate >= DateOnly.FromDateTime(DateTime.Today))
+                .Join(
+                    _context.Users,
+                    a => a.PatientId,
+                    u => u.UserId,
+                    (a, u) => new
+                    {
+                        a.AppointmentID,
+                        a.AppointmentDate,
+                        a.TimeSlot,
+                        a.Status,
+                        PatientName = u.Name // fetch patient name
+                    }
+                )
+                .OrderBy(a => a.AppointmentDate)
+                .ToListAsync();
+            return appointments;
         }
 
         public bool RescheduleAppointment(int appointmentId, DateOnly newAppointmentDate, TimeOnly newTimeSlot)
@@ -226,6 +246,50 @@ namespace DoctorLRweb.Repositories
                 return new List<Appointment>();
 
             return _context.Appointments.Where(a => a.PatientId == user.UserId).ToList();
+        }
+        public List<string> GetAvailableDepartmentsWithOpenSlots()
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var availableDepartments = _context.DoctorSchedules
+                .Where(ds => ds.AvailableDate >= today &&
+                    !_context.Appointments.Any(a =>
+                        a.DoctorID == ds.DoctorId &&
+                        a.AppointmentDate == ds.AvailableDate &&
+                        a.TimeSlot == ds.TimeSlot))
+                .Select(ds => ds.Department)
+                .Distinct()
+                .ToList();
+            return availableDepartments;
+        }
+        public List<User> GetAvailableDoctorsByDepartment(string department)
+        {
+            var today = DateOnly.FromDateTime(DateTime.Today);
+            var doctorIdsWithOpenSlots = _context.DoctorSchedules
+                .Where(ds => ds.Department == department && ds.AvailableDate >= today &&
+                    !_context.Appointments.Any(a =>
+                        a.DoctorID == ds.DoctorId &&
+                        a.AppointmentDate == ds.AvailableDate &&
+                        a.TimeSlot == ds.TimeSlot))
+                .Select(ds => ds.DoctorId)
+                .Distinct()
+                .ToList();
+            return _context.Users
+                .Where(u => u.Role == "doctor" && doctorIdsWithOpenSlots.Contains(u.UserId))
+                .ToList();
+        }
+        public List<User> GetDoctorsWithAppointments()
+        {
+            return (from a in _context.Appointments
+                    join u in _context.Users on a.DoctorID equals u.UserId
+                    where u.Role == "Doctor"
+                    select u).Distinct().ToList();
+        }
+        public List<User> GetPatientsWithAppointments()
+        {
+            return (from a in _context.Appointments
+                    join u in _context.Users on a.PatientId equals u.UserId
+                    where u.Role == "Patient"
+                    select u).Distinct().ToList();
         }
     }
 }

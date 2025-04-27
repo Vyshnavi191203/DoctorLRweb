@@ -34,20 +34,19 @@ namespace DoctorLRweb.Controllers
             return history ?? (ActionResult<MedicalHistory>)NotFound();
         }
         [HttpPost]
-        public IActionResult Post([FromBody] MedicalHistory medicalHistory, [FromQuery] int userId)
+        public IActionResult Post([FromBody] MedicalHistory medicalHistory, [FromQuery] int userId, [FromQuery] string doctorName)
         {
             if (medicalHistory == null)
                 return BadRequest("Invalid medical history data.");
-
-            _service.AddMedicalHistory(medicalHistory, userId);
+            _service.AddMedicalHistory(medicalHistory, userId, doctorName);
             return CreatedAtAction(nameof(Get), new { id = medicalHistory.HistoryID }, medicalHistory);
         }
         [HttpPut("{id}")]
-        public IActionResult UpdateMedicalHistory(int id, [FromBody] MedicalHistory medicalHistory)
+        public IActionResult UpdateMedicalHistory(int id, [FromBody] MedicalHistory medicalHistory, [FromQuery] string doctorName)
         {
             try
             {
-                _service.UpdateMedicalHistory(id, medicalHistory);
+                _service.UpdateMedicalHistory(id, medicalHistory, doctorName);
                 return Ok("Medical history updated successfully.");
             }
             catch (Exception ex)
@@ -97,7 +96,20 @@ namespace DoctorLRweb.Controllers
 
         }
 
-
+        // Search by patient name
+        [HttpGet("search/patient-name")]
+        public IActionResult SearchByPatientName([FromQuery] string patientName)
+        {
+            var results = _service.SearchByPatientName(patientName);
+            return Ok(results);
+        }
+        // Search by doctor name
+        [HttpGet("search/doctor-name")]
+        public IActionResult SearchByDoctorName([FromQuery] string doctorName)
+        {
+            var results = _service.SearchByDoctorName(doctorName);
+            return Ok(results);
+        }
 
     }
 }

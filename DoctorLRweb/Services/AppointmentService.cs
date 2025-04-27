@@ -35,13 +35,13 @@ namespace DoctorLRweb.Services
         {
             return _appointmentRepository.DeleteAppointment(appointmentId);
         }
-        public List<string> GetAvailableDepartments()
+        public List<string> GetAllDepartments()
         {
-            return _appointmentRepository.GetAvailableDepartments();
+            return _appointmentRepository.GetAllDepartments();
         }
-        public List<User> GetDoctorsByDepartment(string department)
+        public List<User> GetAllDoctorsByDepartment(string department)
         {
-            return _appointmentRepository.GetDoctorsByDepartment(department);
+            return _appointmentRepository.GetAllDoctorsByDepartment(department);
         }
         public List<DoctorSchedule> GetDoctorsByDateWithDoctorName(DateOnly availableDate)
         {
@@ -53,11 +53,10 @@ namespace DoctorLRweb.Services
             return _appointmentRepository.GetAppointmentsByPatientId(patientId);
         }
 
-        public List<Appointment> GetAppointmentsByDoctorId(int doctorId)
+        public async Task<IEnumerable<object>> GetAppointmentsByDoctorId(int doctorId)
         {
-            return _appointmentRepository.GetAppointmentsByDoctorId(doctorId);
+            return await _appointmentRepository.GetAppointmentsByDoctorId(doctorId);
         }
-
         public void RescheduleAppointment(int appointmentId, DateOnly newAppointmentDate, TimeOnly newTimeSlot)
         {
             _appointmentRepository.RescheduleAppointment(appointmentId, newAppointmentDate, newTimeSlot);
@@ -73,6 +72,22 @@ namespace DoctorLRweb.Services
         public IEnumerable<Appointment> GetAppointmentsByPatientIdentifier(string identifier)
         {
             return _appointmentRepository.GetAppointmentsByPatientIdentifier(identifier);
+        }
+        public List<string> GetAvailableDepartmentsWithOpenSlots()
+        {
+            return _appointmentRepository.GetAvailableDepartmentsWithOpenSlots();
+        }
+        public List<User> GetAvailableDoctorsByDepartment(string department)
+        {
+            return _appointmentRepository.GetAvailableDoctorsByDepartment(department);
+        }
+        public List<User> GetDoctorsWithAppointments()
+        {
+            return _appointmentRepository.GetDoctorsWithAppointments();
+        }
+        public List<User> GetPatientsWithAppointments()
+        {
+            return _appointmentRepository.GetPatientsWithAppointments();
         }
     }
 }

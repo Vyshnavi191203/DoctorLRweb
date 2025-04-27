@@ -65,22 +65,21 @@ namespace DoctorLRweb.Controllers
         }
 
         [AllowAnonymous]
-        [HttpGet("departments")]
-        public IActionResult GetAvailableDepartments()
+        [HttpGet("all-departments")]
+        public IActionResult GetAllDepartments()
         {
-            var departments = _appointmentService.GetAvailableDepartments();
-            if (departments.Count == 0)
-                return NotFound("No available departments found.");
+            var departments = _appointmentService.GetAllDepartments();
+            if (!departments.Any())
+                return NotFound("No departments found.");
             return Ok(departments);
         }
-
         [AllowAnonymous]
         [HttpGet("doctors-by-department")]
-        public IActionResult GetDoctorsByDepartment([FromQuery] string department)
+        public IActionResult GetAllDoctorsByDepartment([FromQuery] string department)
         {
-            var doctors = _appointmentService.GetDoctorsByDepartment(department);
-            if (doctors.Count == 0)
-                return NotFound("No doctors found for the selected department.");
+            var doctors = _appointmentService.GetAllDoctorsByDepartment(department);
+            if (!doctors.Any())
+                return NotFound("No doctors found in this department.");
             return Ok(doctors);
         }
         // ✅ Updated: Get available doctors with their names and time slots
@@ -108,11 +107,9 @@ namespace DoctorLRweb.Controllers
         }
         [Authorize(Roles = "Doctor,Admin")]
         [HttpGet("by-doctor/{doctorId}")]
-        public IActionResult GetAppointmentsByDoctorId(int doctorId)
+        public async Task<IActionResult> GetAppointmentsByDoctorId(int doctorId)
         {
-            var appointments = _appointmentService.GetAppointmentsByDoctorId(doctorId);
-            if (appointments == null || !appointments.Any())
-                return NotFound("No appointments found for this doctor.");
+            var appointments = await _appointmentService.GetAppointmentsByDoctorId(doctorId);
             return Ok(appointments);
         }
 
@@ -154,6 +151,43 @@ namespace DoctorLRweb.Controllers
         {
             var result = _appointmentService.GetAppointmentsByPatientIdentifier(identifier);
             return Ok(result);
+        }
+        [Authorize(Roles ="Admin,Patient")]
+        [HttpGet("available-departments")]
+    
+        public IActionResult GetAvailableDepartments()
+        {
+            var departments = _appointmentService.GetAvailableDepartmentsWithOpenSlots();
+            if (!departments.Any())
+                return NotFound("No departments with available schedules.");
+            return Ok(departments);
+        }
+        [Authorize(Roles = "Admin,Patient")]
+        [HttpGet("available-doctors-by-department")]
+        public IActionResult GetAvailableDoctorsByDepartment([FromQuery] string department)
+        {
+            var doctors = _appointmentService.GetAvailableDoctorsByDepartment(department);
+            if (!doctors.Any())
+                return NotFound("No available doctors found in this department.");
+            return Ok(doctors);
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("doctors-with-appointments")]
+        public IActionResult GetDoctorsWithAppointments()
+        {
+            var doctors = _appointmentService.GetDoctorsWithAppointments();
+            if (!doctors.Any())
+                return NotFound("No doctors with appointments.");
+            return Ok(doctors);
+        }
+        [Authorize(Roles = "Admin")]
+        [HttpGet("patients-with-appointments")]
+        public IActionResult GetPatientsWithAppointments()
+        {
+            var patients = _appointmentService.GetPatientsWithAppointments();
+            if (!patients.Any())
+                return NotFound("No patients with appointments.");
+            return Ok(patients);
         }
     }
     public class AppointmentRequest

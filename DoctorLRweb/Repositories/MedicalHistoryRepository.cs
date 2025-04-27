@@ -42,35 +42,31 @@ using DoctorLRweb.Data;
 
             }
 
-            public void AddMedicalHistory(MedicalHistory medicalHistory, int userId)
+        public void AddMedicalHistory(MedicalHistory medicalHistory, int userId, string doctorName)
+        {
+            int? patientId = GetPatientIdFromUser(userId);
+            if (patientId == null)
+                throw new KeyNotFoundException("User is not a patient or does not exist.");
+            medicalHistory.PatientId = patientId.Value;
+            medicalHistory.DoctorNames = doctorName; // Set initial doctor
+            _context.MedicalHistories.Add(medicalHistory);
+            _context.SaveChanges();
+        }
 
-            {
-
-                int? patientId = GetPatientIdFromUser(userId);
-
-                if (patientId == null)
-
-                    throw new KeyNotFoundException("User is not a patient or does not exist.");
-
-                medicalHistory.PatientId = patientId.Value;
-
-                _context.MedicalHistories.Add(medicalHistory);
-
-                _context.SaveChanges();
-
-            }
-
-        public void UpdateMedicalHistory(int id, MedicalHistory updatedHistory)
+        public void UpdateMedicalHistory(int id, MedicalHistory updatedHistory, string doctorName)
         {
             var existingHistory = _context.MedicalHistories.FirstOrDefault(h => h.HistoryID == id);
             if (existingHistory == null)
             {
                 throw new KeyNotFoundException("Medical history record not found.");
             }
-            existingHistory.PatientId= updatedHistory.PatientId;
             existingHistory.Diagnosis = updatedHistory.Diagnosis;
             existingHistory.Treatment = updatedHistory.Treatment;
             existingHistory.DateOfVisit = updatedHistory.DateOfVisit;
+            if (!existingHistory.DoctorNames.Contains(doctorName))
+            {
+                existingHistory.DoctorNames += ", " + doctorName; // Append new doctor name
+            }
             _context.SaveChanges();
         }
 
@@ -133,6 +129,19 @@ using DoctorLRweb.Data;
                 .OrderBy(h => h.HistoryID)
                 .Skip((pageNumber - 1) * pageSize)
                 .Take(pageSize)
+                .ToList();
+        }
+        public IEnumerable<MedicalHistory> SearchByPatientName(string patientName)
+        {
+            return _context.MedicalHistories
+                .Where(h => _context.Users
+                    .Any(u => u.UserId == h.PatientId && u.Name.Contains(patientName)))
+                .ToList();
+        }
+        public IEnumerable<MedicalHistory> SearchByDoctorName(string doctorName)
+        {
+            return _context.MedicalHistories
+                .Where(h => h.DoctorNames.Contains(doctorName))
                 .ToList();
         }
 

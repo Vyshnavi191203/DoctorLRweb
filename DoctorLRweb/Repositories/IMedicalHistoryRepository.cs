@@ -6,8 +6,8 @@ namespace DoctorLRweb.Repositories
     {
         IEnumerable<MedicalHistory> GetAll();
         MedicalHistory GetById(int id);
-        void AddMedicalHistory(MedicalHistory medicalHistory, int userId);
-        void UpdateMedicalHistory(int id,MedicalHistory medicalHistory);
+        public void AddMedicalHistory(MedicalHistory medicalHistory, int userId, string doctorName);
+        public void UpdateMedicalHistory(int id, MedicalHistory updatedHistory, string doctorName);
         void DeleteMedicalHistory(int id);
         int? GetPatientIdFromUser(int userId);
         IEnumerable<MedicalHistory> SearchByDiagnosis(string diagnosis);
@@ -16,5 +16,8 @@ namespace DoctorLRweb.Repositories
         public IEnumerable<MedicalHistory> GetHistoryByPatientId(int patientId);
 
         IEnumerable<MedicalHistory> GetPagedMedicalHistories(int pageNumber, int pageSize, out int totalRecords);
+        public IEnumerable<MedicalHistory> SearchByDoctorName(string doctorName);
+        public IEnumerable<MedicalHistory> SearchByPatientName(string patientName);
+
     }
 }

@@ -20,11 +20,7 @@ namespace DoctorLRweb.Repositories
         {
             return await _context.Users.ToListAsync();
         }
-        public async Task AddAsync(User user)
-        {
-            await _context.Users.AddAsync(user);
-            await _context.SaveChangesAsync();
-        }
+
         public async Task UpdateAsync(User user)
         {
             _context.Users.Update(user);
@@ -54,9 +50,18 @@ namespace DoctorLRweb.Repositories
             throw new NotImplementedException();
         }
 
-        public Task AddUser(User user)
+        public async Task AddUser(User user)
         {
-            throw new NotImplementedException();
+            // Generate a unique 4-digit UserId
+            int userId;
+            var random = new Random();
+            do
+            {
+                userId = random.Next(1000, 10000); // 4-digit number: 1000 to 9999
+            } while (await _context.Users.AnyAsync(u => u.UserId == userId));
+            user.UserId = userId;
+            await _context.Users.AddAsync(user);
+            await _context.SaveChangesAsync();
         }
 
         public Task UpdateUser(User user)
