@@ -3,6 +3,7 @@ using DoctorLRweb.Models;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using DoctorLRweb.Data;
+using NuGet.Protocol.Core.Types;
 
 
 
@@ -143,6 +144,32 @@ using DoctorLRweb.Data;
             return _context.MedicalHistories
                 .Where(h => h.DoctorNames.Contains(doctorName))
                 .ToList();
+        }
+        public List<User> GetPatientsByDoctor(int doctorId)
+
+        {
+
+            var patients = (from appointment in _context.Appointments
+
+                            join user in _context.Users on appointment.PatientId equals user.UserId
+
+                            where appointment.DoctorID == doctorId
+
+                            select user)
+
+                            .Distinct()
+
+                            .ToList();
+
+            return patients;
+
+        }
+        public List<MedicalHistory> GetHistoriesByDoctor(string doctorName)
+        {
+            return _context.MedicalHistories
+                           .Where(h => h.DoctorNames == doctorName)
+                           .OrderByDescending(h => h.DateOfVisit)
+                           .ToList();
         }
 
 

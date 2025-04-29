@@ -42,5 +42,13 @@ namespace DoctorLRweb.Services
         {
             return _repository.SearchByDoctorName(doctorName);
         }
+        public List<User> GetPatientsByDoctor(int doctorId)
+        {
+            return _repository.GetPatientsByDoctor(doctorId);
+        }
+        public List<MedicalHistory> GetHistoriesByDoctor(string doctorName)
+        {
+            return _repository.GetHistoriesByDoctor(doctorName);
+        }
     }
 }

@@ -18,6 +18,8 @@ namespace DoctorLRweb.Repositories
         IEnumerable<MedicalHistory> GetPagedMedicalHistories(int pageNumber, int pageSize, out int totalRecords);
         public IEnumerable<MedicalHistory> SearchByDoctorName(string doctorName);
         public IEnumerable<MedicalHistory> SearchByPatientName(string patientName);
+        List<User> GetPatientsByDoctor(int doctorId);
+        List<MedicalHistory> GetHistoriesByDoctor(string doctorName);
 
     }
 }

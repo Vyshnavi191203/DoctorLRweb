@@ -110,6 +110,28 @@ namespace DoctorLRweb.Controllers
             var results = _service.SearchByDoctorName(doctorName);
             return Ok(results);
         }
-
+        [HttpGet("patients-by-doctor/{doctorId}")]
+        [Authorize(Roles = "Doctor")] // Optional if you want only Doctor access
+        public IActionResult GetPatientsByDoctor(int doctorId)
+        {
+            var patients = _service.GetPatientsByDoctor(doctorId);
+            if (patients == null || patients.Count == 0)
+                return NotFound("No patients found for this doctor.");
+            var result = patients.Select(p => new
+            {
+                p.UserId,
+                p.Name
+            }).Distinct().ToList();
+            return Ok(result);
+        }
+        [HttpGet("by-doctor/{doctorName}")]
+        [Authorize(Roles = "Doctor")] // (Optional: If you want only doctors to access this)
+        public IActionResult GetMedicalHistoriesByDoctor(string doctorName)
+        {
+            var histories = _service.GetHistoriesByDoctor(doctorName);
+            if (histories == null || histories.Count == 0)
+                return NotFound("No medical histories found for this doctor.");
+            return Ok(histories);
+        }
     }
 }
